@@ -1,35 +1,22 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.tsx
+import { Suspense, useEffect, useState } from "react";
+import LoginPage from "./LoginPage";
+import { isAuthenticated, logout } from "./auth";
 
-function App() {
-  const [count, setCount] = useState(0)
+const Portfolio = /* lazy import */ 
+  (await import("react")).default.lazy(() => import("./pages/Portfolio"));
+// If top-level await isn’t enabled in your setup, use the classic form:
+ // const Portfolio = React.lazy(() => import("./pages/Portfolio"));
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+export default function App() {
+  const [authed, setAuthed] = useState(false);
+  useEffect(() => { setAuthed(isAuthenticated()); }, []);
+
+  return authed ? (
+    <Suspense fallback={<div className="p-8">Loading…</div>}>
+      <Portfolio onLogout={() => { logout(); setAuthed(false); }} />
+    </Suspense>
+  ) : (
+    <LoginPage onSuccess={() => setAuthed(true)} />
+  );
 }
-
-export default App

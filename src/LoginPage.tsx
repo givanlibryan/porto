@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { login } from './auth';
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('');
+type Props = { onSuccess?: () => void };
+
+export default function LoginPage({ onSuccess }: Props) {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
   const [remember, setRemember] = useState(true);
@@ -11,11 +14,18 @@ export default function LoginPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setError('Enter a valid email.');
-    if (password.length < 6) return setError('Password must be at least 6 characters.');
+
+    if (!username.trim()) return setError('Enter username.');
+    if (password.length < 4) return setError('Password must be at least 4 characters.');
+
     setLoading(true);
-    await new Promise(r => setTimeout(r, 800)); // demo
-    alert('Logged in! (demo)');
+    await new Promise(r => setTimeout(r, 400)); // demo delay
+
+    if (login(username.trim(), password)) {
+      onSuccess?.();
+    } else {
+      setError('Invalid username or password.');
+    }
     setLoading(false);
   };
 
@@ -27,13 +37,12 @@ export default function LoginPage() {
 
         <form onSubmit={submit} className="space-y-4">
           <label className="block">
-            <span className="text-sm font-medium text-slate-700">Email</span>
+            <span className="text-sm font-medium text-slate-700">Username</span>
             <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              autoComplete="email"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="admin"
+              autoComplete="username"
               className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-slate-900"
             />
           </label>
