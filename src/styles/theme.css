@@ -1,0 +1,30 @@
+/* LIGHT (same values as your portfolio) */
+:root {
+    --clr-toggle: black;
+    --clr-nav: #f1f1f1;
+    --clr-backgorund: #ffffff; /* (typo kept as-is to match your CSS) */
+    --clr-black-white-font: black;
+    --clr-black-blue-font: black;
+    --clr-black-orange-font: black;
+    --clr-orange-blue-font: #fa8723;
+    --clr-orange-black-font: #fa8723;
+    --clr-expbox: #3c3c3c;
+    --clr-descbox: #5ac0e7;
+    --clr-desc-border: #3c3c3c;
+  }
+  
+  /* DARK — use same values you used under .dark-mode in the portfolio */
+  .dark, .dark-mode {
+    --clr-toggle: white;
+    --clr-nav: #333333;
+    --clr-backgorund: #3c3c3c;
+    --clr-black-white-font: white;
+    --clr-black-blue-font: #0081eb;
+    --clr-black-orange-font: #fa8723;
+    --clr-orange-blue-font: #0081eb;
+    --clr-orange-black-font: black;
+    --clr-expbox: #5ac0e7;
+    --clr-descbox: #333333;
+    --clr-desc-border: #fa8723;
+  }
+  

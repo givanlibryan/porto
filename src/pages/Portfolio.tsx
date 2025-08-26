@@ -1,200 +1,264 @@
-import { useEffect, useRef, useState } from "react";
-import '../styles/portfolio.css';
-import '../styles/portfolio-responsive.css';
-
+// src/pages/Portfolio.tsx
+import { useEffect, useState } from "react";
 
 type Props = { onLogout?: () => void };
 
 export default function Portfolio({ onLogout }: Props) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [dark, setDark] = useState(false);
-  const navRef = useRef<HTMLElement>(null);
-  const [sticky, setSticky] = useState(false);
-
-  // Dark mode: toggle class on <body> (uses your CSS variables)
+  // theme toggle (shared with login)
+  const [theme, setTheme] = useState<"light" | "dark">(
+    () => (localStorage.getItem("theme") as "light" | "dark") || "light"
+  );
   useEffect(() => {
-    document.body.classList.toggle("dark-mode", dark);
-    return () => document.body.classList.remove("dark-mode");
-  }, [dark]);
+    const isDark = theme === "dark";
+    document.documentElement.classList.toggle("dark", isDark);
+    document.body.classList.toggle("dark-mode", isDark); // harmless if unused
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
-  // Sticky header (use Y offset)
-  useEffect(() => {
-    const onScroll = () => {
-      const top = navRef.current?.offsetTop ?? 0;
-      setSticky(window.pageYOffset >= top);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className="portfolio">
-      <>
-        {/* Floating Logout (optional) */}
-        {onLogout && (
-          <button className="logout-fab" onClick={onLogout} aria-label="Log out">
-            Logout
-          </button>
-        )}
+    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 dark:from-slate-950 dark:to-slate-900 text-slate-900 dark:text-slate-100">
+      {/* Navbar */}
+      <header className="sticky top-0 z-50 border-b border-slate-200/60 dark:border-slate-800/80 bg-white/70 dark:bg-slate-950/60 backdrop-blur">
+        <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
+          <a href="#home" className="inline-flex items-center gap-2">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white text-xs font-bold">
+              GKL
+            </span>
+            <span className="font-semibold tracking-tight">Portfolio</span>
+          </a>
 
-        <nav ref={navRef} className={sticky ? "sticky" : ""}>
-          {/* light/dark mode container */}
-          <div className="wrapper-color-switch">
-            <input
-              type="checkbox"
-              id="input-color-switch"
-              checked={dark}
-              onChange={(e) => setDark(e.target.checked)}
-            />
-            <label htmlFor="input-color-switch" className="color-switch">
-              <div className="color-switch-toggle"></div>
-            </label>
-          </div>
+          <nav className="hidden md:flex items-center gap-6 text-sm">
+            <a className="hover:text-slate-600 dark:hover:text-slate-300" href="#about">About</a>
+            <a className="hover:text-slate-600 dark:hover:text-slate-300" href="#experience">Experience</a>
+            <a className="hover:text-slate-600 dark:hover:text-slate-300" href="#education">Education</a>
+            <a className="hover:text-slate-600 dark:hover:text-slate-300" href="#contact">Contact</a>
+          </nav>
 
-          <ul className={menuOpen ? "slide" : ""} onClick={() => setMenuOpen(false)}>
-            <li><a href="#1">Hello</a></li>
-            <li><a href="#2">Work Experiences</a></li>
-            <li><a href="#3">Educations</a></li>
-            <li><a href="#4">Contact</a></li>
-          </ul>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setTheme(t => (t === "dark" ? "light" : "dark"))}
+              className="rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-xs bg-white/70 dark:bg-slate-800/70"
+              title="Toggle theme"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+            </button>
 
-          <div className="menu-toggle">
-            <input
-              type="checkbox"
-              checked={menuOpen}
-              onChange={(e) => setMenuOpen(e.target.checked)}
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-3 py-1.5 text-xs font-medium"
+              >
+                Logout
+              </button>
+            )}
+
+            <button
+              onClick={() => setOpen(o => !o)}
+              className="md:hidden ml-1 rounded-lg p-2 border border-slate-300 dark:border-slate-700"
               aria-label="Toggle menu"
-            />
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </nav>
-
-        <div className="intoprofil">
-          <div className="container">
-            <h2>Welcome to my site</h2>
-            <img src="/img/logofullname.png" alt="Logo full name" />
-            <a href="#1">About me?</a>
+            >
+              {open ? "✖" : "☰"}
+            </button>
           </div>
         </div>
 
-        <div id="1" className="profil">
-          <div className="container">
-            <div className="separate1">
-              <h1>My Profile !</h1>
-              <h3>My name is Givan Kusuma Libryano,</h3>
-              <p>
-                I graduated from Computer Engineering, Brawijaya University. I am a highly
-                motivated, hardworking, responsible and organized person with good time
-                management. I am able to work under pressures and willing to learn in the
-                interest of gaining experience and knowledge. I capable to work as a team
-                and easily adapt with new environment while possessing a good leadership
-                and communication skill.
+        {open && (
+          <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 backdrop-blur">
+            <div className="mx-auto max-w-6xl px-4 py-3 flex flex-col gap-2 text-sm">
+              <a onClick={() => setOpen(false)} className="py-1" href="#about">About</a>
+              <a onClick={() => setOpen(false)} className="py-1" href="#experience">Experience</a>
+              <a onClick={() => setOpen(false)} className="py-1" href="#education">Education</a>
+              <a onClick={() => setOpen(false)} className="py-1" href="#contact">Contact</a>
+            </div>
+          </div>
+        )}
+      </header>
+
+      <main id="home">
+        {/* Hero (no image) */}
+        <section className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
+          <div className="grid md:grid-cols-2 gap-10 items-center">
+            <div>
+              <p className="text-sm uppercase tracking-widest text-slate-500 dark:text-slate-400">Hello, I’m</p>
+              <h1 className="mt-2 text-4xl sm:text-5xl font-extrabold leading-tight">
+                Givan Kusuma <span className="text-slate-500 dark:text-slate-300">Libryano</span>
+              </h1>
+              <p className="mt-5 text-slate-600 dark:text-slate-300 max-w-prose">
+                Computer Engineering graduate passionate about building clean, reliable UIs. Organized, adaptable,
+                and a team player with strong communication and leadership skills.
               </p>
+              <div className="mt-6 flex gap-3">
+                <a href="#contact" className="rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-4 py-2.5 font-medium">
+                  Contact me
+                </a>
+                <a href="#experience" className="rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-2.5">
+                  View experience
+                </a>
+              </div>
             </div>
 
-            <div className="separate2">
-              <img src="/img/smash.png" alt="Smash" />
+            {/* Decorative CSS avatar */}
+            <div className="flex justify-center md:justify-end">
+              <div className="relative">
+                <div className="h-56 w-56 sm:h-72 sm:w-72 rounded-3xl bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 shadow-2xl" />
+                <div className="absolute inset-0 grid place-items-center">
+                  <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-full bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 grid place-items-center shadow-lg">
+                    <span className="text-xl font-bold tracking-wider">GKL</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* Skills */}
+          <div className="mt-10 flex flex-wrap gap-2">
+            {["HTML/CSS", "JavaScript/TypeScript", "React", "Tailwind", "Git/GitHub"].map(s => (
+              <span key={s} className="text-xs px-2.5 py-1 rounded-full border border-slate-300 dark:border-slate-700">
+                {s}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        {/* About */}
+        <section id="about" className="mx-auto max-w-6xl px-4 py-12">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/50 p-6 sm:p-8">
+            <h2 className="text-2xl font-semibold">About me</h2>
+            <p className="mt-3 text-slate-600 dark:text-slate-300 leading-relaxed">
+              I graduated from Computer Engineering at Brawijaya University. I’m motivated, responsible, and organized
+              with solid time management. I can work under pressure, learn fast, and adapt quickly. I enjoy collaborating
+              and taking initiative to deliver results.
+            </p>
+          </div>
+        </section>
+
+        {/* Experience */}
+        <section id="experience" className="mx-auto max-w-6xl px-4 py-12">
+          <h2 className="text-2xl font-semibold mb-6">Experience</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card><CardTitle>INTERNSHIP PROGRAM</CardTitle><CardBody>
+              <P>IT Maintenance — IT Department</P><P>PT Amman Mineral Nusa Tenggara</P><P>2018</P>
+            </CardBody></Card>
+
+            <Card><CardTitle>ORGANIZATION</CardTitle><CardBody>
+              <P>Unit Aktivitas Bulutangkis Universitas Brawijaya</P>
+              <P>2017 Koordinator Dana dan Usaha</P>
+              <P>2016 Staff Kaderisasi</P>
+              <P>2015 Staff Dana dan Usaha</P>
+            </CardBody></Card>
+
+            <Card><CardTitle>COMMITTEE</CardTitle><CardBody>
+              <P>2019 Staff — PIONIR IX</P>
+              <P>2018 Staff — LIMA Badminton (Malang Subconf.)</P>
+              <P>2017 Koordinator Divisi PDD — IBM 10</P>
+              <P>2016 Koordinator Divisi PDD — Brawijaya Badminton Challenge</P>
+            </CardBody></Card>
+          </div>
+        </section>
+
+        {/* Education */}
+        <section id="education" className="mx-auto max-w-6xl px-4 py-12">
+          <h2 className="text-2xl font-semibold mb-6">Education</h2>
+          <div className="grid md:grid-cols-4 gap-6">
+            {[
+              { level: "PRIMARY", school: "SDN 02 Maluk", years: "2002–2008" },
+              { level: "JUNIOR HIGH", school: "SMPN 1 Sumbawa Besar", years: "2008–2011" },
+              { level: "SENIOR HIGH", school: "SMAN 1 Sumbawa Besar", years: "2011–2014" },
+              { level: "GRADUATE", school: "Computer Engineering, Univ. Brawijaya", years: "2014–2021" },
+            ].map(item => (
+              <Card key={item.level}>
+                <CardTitle>{item.level}</CardTitle>
+                <CardBody><P>{item.school}</P><P>{item.years}</P></CardBody>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Contact (emoji tile) */}
+        <section id="contact" className="mx-auto max-w-6xl px-4 py-12">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="flex justify-center">
+              <div className="h-40 w-40 rounded-3xl bg-gradient-to-br from-emerald-400 to-teal-600 grid place-items-center shadow-2xl">
+                <span className="text-5xl">📬</span>
+              </div>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const t = e.currentTarget;
+                const name = (t.elements.namedItem("name") as HTMLInputElement)?.value || "";
+                const email = (t.elements.namedItem("email") as HTMLInputElement)?.value || "";
+                const body = (t.elements.namedItem("message") as HTMLTextAreaElement)?.value || "";
+                window.location.href = `mailto:givan@example.com?subject=Hello from ${encodeURIComponent(
+                  name
+                )}&body=${encodeURIComponent(body + "\n\nFrom: " + email)}`;
+              }}
+              className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/50 p-6 sm:p-8"
+            >
+              <h2 className="text-xl font-semibold">Contact me</h2>
+
+              <label className="mt-4 block text-sm">
+                Name <span className="text-orange-500">*</span>
+                <input
+                  name="name" required
+                  className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-200"
+                />
+              </label>
+
+              <label className="mt-3 block text-sm">
+                Email <span className="text-orange-500">*</span>
+                <input
+                  name="email" type="email" required
+                  className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-200"
+                />
+              </label>
+
+              <label className="mt-3 block text-sm">
+                Message <span className="text-orange-500">*</span>
+                <textarea
+                  name="message" required rows={4}
+                  className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-200"
+                />
+              </label>
+
+              <div className="mt-4">
+                <button className="rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-4 py-2.5">
+                  Send
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t border-slate-200 dark:border-slate-800 py-10">
+        <div className="mx-auto max-w-6xl px-4 text-center">
+          <p className="font-semibold">Givan Kusuma Libryano</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">© {new Date().getFullYear()}</p>
         </div>
-
-        <div id="2" className="workexp">
-          <div className="myexp">
-            <h2>My Experiences</h2>
-          </div>
-
-          <div className="myexpwrap">
-            <div className="internship">
-              <h4>INTERNSHIP PROGRAM</h4>
-              <p>IT Maintenance - IT Department</p>
-              <p>PT Amman mineral Nusa Tenggara</p>
-              <p>2018</p>
-            </div>
-
-            <div className="organization">
-              <h4>ORGANIZATION</h4>
-              <p>Unit Aktivitas Bulutangkis Universitas Brawijaya</p>
-              <p>2017 Koordinator Dana Dan Usaha</p>
-              <p>2016 Staff Kaderisasi</p>
-              <p>2015 Staff Dana Dan Usaha</p>
-            </div>
-
-            <div className="committee">
-              <h4>COMMITTEE</h4>
-              <p>2019 STAFF</p>
-              <p>Pekan Ilmiah, Olahraga, Seni dan Riset (PIONIR) IX</p>
-              <p>2018 STAFF</p>
-              <p>LIMA Badminton : McDonald's East Java Conference (Malang Subconference)</p>
-              <p>2017 KOORDINATOR DIVISI PDD</p>
-              <p>Invitasi Bulutangkis Mahasiswa 10</p>
-              <p>2016 KOORDINATOR DIVISI PDD</p>
-              <p>Brawijaya Badminton Challenge</p>
-            </div>
-          </div>
-        </div>
-
-        <div id="3" className="education">
-          <div className="myedu">
-            <h2>My Educations</h2>
-          </div>
-
-          <div className="container">
-            <div className="primary">
-              <h4>PRIMARY</h4>
-              <p>SDN 02 Maluk</p>
-              <p>2002 - 2008</p>
-            </div>
-            <div className="junior">
-              <h4>JUNIOR HIGH</h4>
-              <p>SMPN 1 Sumbawa Besar</p>
-              <p>2008 - 2011</p>
-            </div>
-            <div className="senior">
-              <h4>SENIOR HIGH</h4>
-              <p>SMAN 1 Sumbawa Besar</p>
-              <p>2011 - 2014</p>
-            </div>
-            <div className="graduate">
-              <h4>GRADUATE</h4>
-              <p>Computer Enginering</p>
-              <p>University of Brawijaya</p>
-              <p>2014 - 2021</p>
-            </div>
-          </div>
-        </div>
-
-        <div id="4" className="contactme">
-          <div className="contactimg">
-            <img src="/img/contactme.png" alt="Contact" />
-          </div>
-
-          <div className="contact">
-            <h3 className="contact-title">Contact me</h3>
-
-            <p>Name<span>*</span></p>
-            <input aria-label="Name" />
-
-            <p>Email<span>*</span></p>
-            <input aria-label="Email" />
-
-            <p>Message<span>*</span></p>
-            <textarea aria-label="Message"></textarea>
-
-            <p><span>*</span> Required fields must be filled</p>
-            <input className="contact-submit" type="submit" value="Send" />
-          </div>
-        </div>
-
-        <footer>
-          <div className="footname">
-            <h2>Givan Kusuma Libryano</h2>
-            <h3>Copyright ©2021</h3>
-          </div>
-        </footer>
-      </>
+      </footer>
     </div>
   );
+}
+
+/* small presentational helpers */
+function Card({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/50 p-6">
+      {children}
+    </div>
+  );
+}
+function CardTitle({ children }: { children: React.ReactNode }) {
+  return <h3 className="text-sm tracking-wider text-slate-500 dark:text-slate-400">{children}</h3>;
+}
+function CardBody({ children }: { children: React.ReactNode }) {
+  return <div className="mt-2 space-y-1">{children}</div>;
+}
+function P({ children }: { children: React.ReactNode }) {
+  return <p className="text-slate-700 dark:text-slate-300">{children}</p>;
 }
