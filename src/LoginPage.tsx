@@ -3,9 +3,9 @@ import { supabase } from './supabaseClient';
 import { useEffect, useState } from 'react';
 import { login } from './auth';
 
-type Props = { onSuccess?: () => void };
+type Props = { onSuccess?: () => void; onGuest?: () => void };
 
-export default function LoginPage({ onSuccess }: Props) {
+export default function LoginPage({ onSuccess, onGuest }: Props) {
   // theme toggle (keeps your dark mode working)
   const [theme, setTheme] = useState<'light' | 'dark'>(
     () => (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
@@ -16,6 +16,13 @@ export default function LoginPage({ onSuccess }: Props) {
     document.body.classList.toggle('dark-mode', isDark);
     localStorage.setItem('theme', theme);
   }, [theme]);
+
+  // show Supabase hash errors (expired/used link, etc.)
+  useEffect(() => {
+    const params = new URLSearchParams(location.hash.slice(1));
+    const msg = params.get('error_description');
+    if (msg) setError(decodeURIComponent(msg.replace(/\+/g, ' ')));
+  }, []);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,17 +48,13 @@ export default function LoginPage({ onSuccess }: Props) {
 
   async function sendReset() {
     if (!email) return setError('Enter your email first.');
-
     const base = import.meta.env.BASE_URL || '/';
     const redirectTo = `${location.origin}${base}reset`; // dev: /reset, prod: /porto/reset
-
     const { error: resetErr } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo,
     });
-
-    if (resetErr) {
-      setError(resetErr.message); // Supabase AuthError.message
-    } else {
+    if (resetErr) setError(resetErr.message);
+    else {
       setError(null);
       alert('Reset link sent. Check your email.');
     }
@@ -127,7 +130,6 @@ export default function LoginPage({ onSuccess }: Props) {
               />
               Remember me
             </label>
-            <span className="text-xs text-slate-400 dark:text-slate-500">Demo UI</span>
           </div>
 
           {error && (
@@ -143,6 +145,18 @@ export default function LoginPage({ onSuccess }: Props) {
           >
             {loading ? 'Signing in…' : 'Sign in'}
           </button>
+
+          {/* Guest entry */}
+          <button
+            type="button"
+            onClick={onGuest}
+            className="mt-2 w-full rounded-xl border border-slate-300 py-2.5 text-slate-700 dark:border-slate-700 dark:text-slate-200"
+          >
+            Continue as guest
+          </button>
+          <p className="mt-2 text-center text-xs text-slate-500 dark:text-slate-400">
+            Guests can browse only. Actions that change data require sign in.
+          </p>
         </form>
       </div>
     </div>

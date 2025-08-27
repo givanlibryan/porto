@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import LoginPage from './LoginPage';
 import Portfolio from './pages/Portfolio';
 import ResetPassword from './ResetPassword';
-import { logout, onAuthChange } from './auth';
+import { enableGuest, isGuest, logout, onAuthChange } from './auth';
 
 function isResetRoute() {
   const base = import.meta.env.BASE_URL || '/';
@@ -12,9 +12,13 @@ function isResetRoute() {
 
 export default function App() {
   const [authed, setAuthed] = useState(false);
+  const [guest, setGuest] = useState(isGuest());
 
   useEffect(() => {
-    const off = onAuthChange(setAuthed);
+    const off = onAuthChange((ok) => {
+      setAuthed(ok);
+      setGuest(isGuest());
+    });
     return off;
   }, []);
 
@@ -22,9 +26,21 @@ export default function App() {
     return <ResetPassword />;
   }
 
+  const handleGuest = () => {
+    enableGuest();
+    setGuest(true);
+    setAuthed(true);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setGuest(false);
+    setAuthed(false);
+  };
+
   return authed ? (
-    <Portfolio onLogout={() => logout()} />
+    <Portfolio guest={guest} onLogout={handleLogout} />
   ) : (
-    <LoginPage onSuccess={() => setAuthed(true)} />
+    <LoginPage onSuccess={() => setAuthed(true)} onGuest={handleGuest} />
   );
 }

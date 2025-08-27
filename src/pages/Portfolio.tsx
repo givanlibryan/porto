@@ -2,9 +2,9 @@
 import { supabase } from '../supabaseClient';
 import { useEffect, useState } from 'react';
 
-type Props = { onLogout?: () => void };
+type Props = { onLogout?: () => void; guest?: boolean };
 
-export default function Portfolio({ onLogout }: Props) {
+export default function Portfolio({ onLogout, guest }: Props) {
   // theme toggle (shared with login)
   const [theme, setTheme] = useState<'light' | 'dark'>(
     () => (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
@@ -58,6 +58,12 @@ export default function Portfolio({ onLogout }: Props) {
             >
               {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
             </button>
+
+            {guest && (
+              <span className="rounded-full border border-slate-300 px-2 py-1 text-[11px] dark:border-slate-700">
+                Guest
+              </span>
+            )}
 
             {onLogout && (
               <button
@@ -242,6 +248,15 @@ export default function Portfolio({ onLogout }: Props) {
               onSubmit={async (e) => {
                 e.preventDefault();
                 setNotice(null);
+
+                if (guest) {
+                  setNotice({
+                    type: 'err',
+                    msg: 'Please sign in to send a message.',
+                  });
+                  return;
+                }
+
                 setSending(true);
                 try {
                   const t = e.currentTarget as HTMLFormElement;
@@ -271,14 +286,12 @@ export default function Portfolio({ onLogout }: Props) {
                   setNotice({ type: 'ok', msg: 'Message sent. Thank you!' });
                   t.reset();
                 } catch (err: unknown) {
-                  // Supabase may throw plain objects (not Error), so be defensive:
                   const msg =
                     typeof err === 'string'
                       ? err
                       : err && typeof err === 'object' && 'message' in err
                         ? String((err as { message?: unknown }).message)
                         : 'Failed to send message.';
-
                   setNotice({ type: 'err', msg });
                 } finally {
                   setSending(false);
@@ -331,10 +344,11 @@ export default function Portfolio({ onLogout }: Props) {
 
               <div className="mt-4">
                 <button
-                  disabled={sending}
+                  disabled={sending || !!guest}
+                  title={guest ? 'Sign in required' : undefined}
                   className="rounded-xl bg-slate-900 px-4 py-2.5 text-white disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900"
                 >
-                  {sending ? 'Sending…' : 'Send'}
+                  {sending ? 'Sending…' : guest ? 'Sign in to send' : 'Send'}
                 </button>
               </div>
             </form>
