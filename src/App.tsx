@@ -3,6 +3,7 @@ import LoginPage from './LoginPage';
 import Portfolio from './pages/Portfolio';
 import ResetPassword from './ResetPassword';
 import { enableGuest, isGuest, logout, onAuthChange } from './auth';
+import { tid } from './testIds';
 
 function isResetRoute() {
   const base = import.meta.env.BASE_URL || '/';
@@ -23,7 +24,11 @@ export default function App() {
   }, []);
 
   if (isResetRoute()) {
-    return <ResetPassword />;
+    return (
+      <div data-testid={tid.app.viewReset}>
+        <ResetPassword />
+      </div>
+    );
   }
 
   const handleGuest = () => {
@@ -38,9 +43,17 @@ export default function App() {
     setAuthed(false);
   };
 
-  return authed ? (
-    <Portfolio guest={guest} onLogout={handleLogout} />
-  ) : (
-    <LoginPage onSuccess={() => setAuthed(true)} onGuest={handleGuest} />
+  return (
+    <div data-testid={tid.app.root}>
+      {authed ? (
+        <div data-testid={tid.app.viewPortfolio}>
+          <Portfolio guest={guest} onLogout={handleLogout} />
+        </div>
+      ) : (
+        <div data-testid={tid.app.viewLogin}>
+          <LoginPage onSuccess={() => setAuthed(true)} onGuest={handleGuest} />
+        </div>
+      )}
+    </div>
   );
 }

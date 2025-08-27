@@ -1,12 +1,12 @@
-// src/LoginPage.tsx
 import { supabase } from './supabaseClient';
 import { useEffect, useState } from 'react';
 import { login } from './auth';
+import { tid } from './testIds';
 
 type Props = { onSuccess?: () => void; onGuest?: () => void };
 
 export default function LoginPage({ onSuccess, onGuest }: Props) {
-  // theme toggle (keeps your dark mode working)
+  // theme toggle
   const [theme, setTheme] = useState<'light' | 'dark'>(
     () => (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
   );
@@ -17,7 +17,7 @@ export default function LoginPage({ onSuccess, onGuest }: Props) {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // show Supabase hash errors (expired/used link, etc.)
+  // surfacing Supabase hash errors
   useEffect(() => {
     const params = new URLSearchParams(location.hash.slice(1));
     const msg = params.get('error_description');
@@ -61,8 +61,12 @@ export default function LoginPage({ onSuccess, onGuest }: Props) {
   }
 
   return (
-    <div className="grid min-h-screen place-items-center bg-gradient-to-br from-slate-50 via-white to-slate-100 p-4 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+    <div
+      data-testid={tid.login.root}
+      className="grid min-h-screen place-items-center bg-gradient-to-br from-slate-50 via-white to-slate-100 p-4 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900"
+    >
       <button
+        data-testid={tid.login.themeToggle}
         type="button"
         onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
         className="absolute top-4 right-4 rounded-xl border border-slate-300 bg-white/70 px-3 py-1.5 text-slate-700 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-200"
@@ -71,14 +75,25 @@ export default function LoginPage({ onSuccess, onGuest }: Props) {
         {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
       </button>
 
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white/80 p-6 text-slate-900 shadow-xl sm:p-8 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100">
-        <h1 className="text-xl font-semibold">Welcome back</h1>
-        <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">Sign in to your account</p>
+      <div
+        data-testid={tid.login.card}
+        className="w-full max-w-md rounded-2xl border border-slate-200 bg-white/80 p-6 text-slate-900 shadow-xl sm:p-8 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100"
+      >
+        <h1 data-testid={tid.login.title} className="text-xl font-semibold">
+          Welcome back
+        </h1>
+        <p
+          data-testid={tid.login.subtitle}
+          className="mb-4 text-sm text-slate-500 dark:text-slate-400"
+        >
+          Sign in to your account
+        </p>
 
-        <form onSubmit={submit} className="space-y-4">
+        <form data-testid={tid.login.form} onSubmit={submit} className="space-y-4">
           <label className="block">
             <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Email</span>
             <input
+              data-testid={tid.login.email}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -94,6 +109,7 @@ export default function LoginPage({ onSuccess, onGuest }: Props) {
                 Password
               </span>
               <button
+                data-testid={tid.login.forgot}
                 type="button"
                 onClick={sendReset}
                 className="text-xs text-slate-500 underline dark:text-slate-400"
@@ -103,6 +119,7 @@ export default function LoginPage({ onSuccess, onGuest }: Props) {
             </div>
             <div className="mt-1.5 flex gap-2">
               <input
+                data-testid={tid.login.password}
                 type={show ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -111,6 +128,7 @@ export default function LoginPage({ onSuccess, onGuest }: Props) {
                 className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
               />
               <button
+                data-testid={tid.login.showPassword}
                 type="button"
                 onClick={() => setShow((s) => !s)}
                 className="rounded-xl border border-slate-200 px-3 dark:border-slate-700"
@@ -123,6 +141,7 @@ export default function LoginPage({ onSuccess, onGuest }: Props) {
           <div className="flex items-center justify-between">
             <label className="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
               <input
+                data-testid={tid.login.remember}
                 type="checkbox"
                 checked={remember}
                 onChange={(e) => setRemember(e.target.checked)}
@@ -130,15 +149,20 @@ export default function LoginPage({ onSuccess, onGuest }: Props) {
               />
               Remember me
             </label>
+            <span className="text-xs text-slate-400 dark:text-slate-500">Demo UI</span>
           </div>
 
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-400/40 dark:bg-red-950/40 dark:text-red-200">
+            <div
+              data-testid={tid.login.error}
+              className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-400/40 dark:bg-red-950/40 dark:text-red-200"
+            >
               {error}
             </div>
           )}
 
           <button
+            data-testid={tid.login.submit}
             type="submit"
             disabled={loading}
             className="w-full rounded-xl bg-slate-900 py-2.5 font-medium text-white disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900"
@@ -146,15 +170,18 @@ export default function LoginPage({ onSuccess, onGuest }: Props) {
             {loading ? 'Signing in…' : 'Sign in'}
           </button>
 
-          {/* Guest entry */}
           <button
+            data-testid={tid.login.guest}
             type="button"
             onClick={onGuest}
             className="mt-2 w-full rounded-xl border border-slate-300 py-2.5 text-slate-700 dark:border-slate-700 dark:text-slate-200"
           >
             Continue as guest
           </button>
-          <p className="mt-2 text-center text-xs text-slate-500 dark:text-slate-400">
+          <p
+            data-testid={tid.login.notice}
+            className="mt-2 text-center text-xs text-slate-500 dark:text-slate-400"
+          >
             Guests can browse only. Actions that change data require sign in.
           </p>
         </form>
