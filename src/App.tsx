@@ -1,9 +1,10 @@
+// src/App.tsx
 import { useEffect, useState } from 'react';
-import LoginPage from './LoginPage';
-import Portfolio from './pages/Portfolio';
-import ResetPassword from './ResetPassword';
-import { enableGuest, isGuest, logout, onAuthChange } from './auth';
-import { tid } from './testIds';
+import LoginPage from '@/pages/LoginPage';
+import Portfolio from '@/pages/Portfolio';
+import ResetPassword from '@/pages/ResetPassword';
+import { enableGuest, isGuest, logout, onAuthChange } from '@/lib/auth';
+import { tid } from '@/lib/testIds';
 
 function isResetRoute() {
   const base = import.meta.env.BASE_URL || '/';

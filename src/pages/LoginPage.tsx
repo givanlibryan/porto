@@ -1,7 +1,7 @@
-import { supabase } from './supabaseClient';
 import { useEffect, useState } from 'react';
-import { login } from './auth';
-import { tid } from './testIds';
+import { login } from '@/lib/auth';
+import { supabase } from '@/lib/supabaseClient';
+import { tid } from '@/lib/testIds';
 
 type Props = { onSuccess?: () => void; onGuest?: () => void };
 
@@ -146,7 +146,6 @@ export default function LoginPage({ onSuccess, onGuest }: Props) {
               />
               Remember me
             </label>
-            <span className="text-brand-500 dark:text-brand-400 text-xs">Demo UI</span>
           </div>
 
           {error && (

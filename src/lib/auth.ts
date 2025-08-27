@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 
 const GUEST_KEY = 'guest_mode';
 

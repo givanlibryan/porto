@@ -1,8 +1,17 @@
+// src/pages/ResetPassword.tsx
 import { useEffect, useState } from 'react';
-import { supabase } from './supabaseClient';
-import { tid } from './testIds';
+import { supabase } from '@/lib/supabaseClient';
+import { tid } from '@/lib/testIds';
 
 export default function ResetPassword() {
+  // theme (match the rest of the app)
+  useEffect(() => {
+    const theme = (localStorage.getItem('theme') as 'light' | 'dark') || 'light';
+    const dark = theme === 'dark';
+    document.documentElement.classList.toggle('dark', dark);
+    document.body.classList.toggle('dark-mode', dark);
+  }, []);
+
   const [hasSession, setHasSession] = useState<boolean | null>(null);
   const [pw1, setPw1] = useState('');
   const [pw2, setPw2] = useState('');
@@ -14,12 +23,32 @@ export default function ResetPassword() {
   const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
   const homeUrl = isLocal ? `${location.protocol}//${location.host}/` : `${location.origin}${base}`;
 
+  // Pick up session after redirect and keep it updated.
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setHasSession(!!data.session));
+    let unsub = () => {};
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      setHasSession(!!data.session);
+
+      const sub = supabase.auth.onAuthStateChange((_evt, session) => {
+        setHasSession(!!session);
+      });
+      unsub = () => sub.data.subscription.unsubscribe();
+    })();
+
+    // Optional: remove the long #access_token hash from the URL
+    if (location.hash) {
+      const clean = location.pathname + location.search;
+      history.replaceState({}, '', clean);
+    }
+
+    return unsub;
   }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return;
+
     setErr(null);
     setMsg(null);
 
@@ -49,6 +78,8 @@ export default function ResetPassword() {
   }
 
   if (!hasSession) {
+    // If the OTP link is bad/expired and Supabase didn’t create a session,
+    // you’ll land here. (The login page may also show an error_description.)
     return (
       <div data-testid={tid.reset.invalid} className="grid min-h-screen place-items-center p-6">
         <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white/80 p-6 dark:border-slate-800 dark:bg-slate-900/70">

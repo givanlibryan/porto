@@ -4,16 +4,19 @@
     "target": "ES2023",
     "lib": ["ES2023"],
     "module": "ESNext",
-    "skipLibCheck": true,
 
-    /* Bundler mode */
+    /* Bundler mode (good match for Vite config) */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
+
+    /* Quality-of-life */
+    "types": ["node"],
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
     "noEmit": true,
 
-    /* Linting */
+    /* Strictness */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

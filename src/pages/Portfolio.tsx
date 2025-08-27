@@ -1,6 +1,6 @@
-import { supabase } from '../supabaseClient';
 import { useEffect, useState } from 'react';
-import { tid } from '../testIds';
+import { supabase } from '@/lib/supabaseClient';
+import { tid } from '@/lib/testIds';
 
 type Props = { onLogout?: () => void; guest?: boolean };
 
