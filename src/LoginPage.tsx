@@ -1,4 +1,5 @@
 // src/LoginPage.tsx
+import { supabase } from './supabaseClient';
 import { useEffect, useState } from 'react';
 import { login } from './auth';
 
@@ -38,6 +39,24 @@ export default function LoginPage({ onSuccess }: Props) {
     else setError('Invalid email or password.');
   }
 
+  async function sendReset() {
+    if (!email) return setError('Enter your email first.');
+
+    const base = import.meta.env.BASE_URL || '/';
+    const redirectTo = `${location.origin}${base}reset`; // dev: /reset, prod: /porto/reset
+
+    const { error: resetErr } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo,
+    });
+
+    if (resetErr) {
+      setError(resetErr.message); // Supabase AuthError.message
+    } else {
+      setError(null);
+      alert('Reset link sent. Check your email.');
+    }
+  }
+
   return (
     <div className="grid min-h-screen place-items-center bg-gradient-to-br from-slate-50 via-white to-slate-100 p-4 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       <button
@@ -71,7 +90,13 @@ export default function LoginPage({ onSuccess }: Props) {
               <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
                 Password
               </span>
-              <span className="text-xs text-slate-500 dark:text-slate-400">Supabase Auth</span>
+              <button
+                type="button"
+                onClick={sendReset}
+                className="text-xs text-slate-500 underline dark:text-slate-400"
+              >
+                Forgot password?
+              </button>
             </div>
             <div className="mt-1.5 flex gap-2">
               <input
